@@ -139,8 +139,16 @@ def main():
     aa("-d","--design_file")
     aa("-o","--out_dir")
     aa("-vo","--visual_output",default = False,action ="store_true")
+    aa("-rs","--random_seed",defaut = None,required=False)
 
     args = prs.parse_args()
+
+    if args.random_seed is None:
+        try:
+            random_seed = int(args.random_seed)
+            np.random.seed(random_seed)
+        except:
+            log.warning("Failed to set random seed. Will continue")
 
 
     ds = toml.load(args.design_file)
