@@ -34,7 +34,7 @@ def visualize_tissue(sc_genome: np.ndarray,
                     sc_crds[:,1],
                     c = abber,
                     cmap = plt.cm.plasma,
-                    s = 1,
+                    s = 2,
                     )
 
     ax.set_aspect("equal")
@@ -56,7 +56,7 @@ def visualize_array(sc_genome,
 
     ax.scatter(array_x,
                array_y,
-               s = 10,
+               s = 30,
                c = "red",
                alpha = 0.3,
                )

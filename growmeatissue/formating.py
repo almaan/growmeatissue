@@ -98,6 +98,7 @@ def in_silico_st(tissue_data: Dict[str,np.ndarray],
     gen_matrix = np.zeros((xx.shape[0],n_genes))
     ben_matrix = np.zeros(xx.shape[0])
     cell_count = np.zeros(xx.shape[0])
+    cell_id_list = []
 
     make_cluster_matrix = "cluster_index" in tissue_data.keys()
     if make_cluster_matrix:
@@ -114,6 +115,8 @@ def in_silico_st(tissue_data: Dict[str,np.ndarray],
                 in_spot.append(k)
 
         in_spot = np.array(in_spot)
+
+        cell_id_list.append(in_spot.tolist())
 
         joint_expr = tissue_data["expression"][in_spot,:].sum(axis=0)
         gene_prob = joint_expr / joint_expr.sum()
@@ -139,6 +142,7 @@ def in_silico_st(tissue_data: Dict[str,np.ndarray],
                spot_status = ben_matrix,
                cluster_index = (cluster_matrix if make_cluster_matrix else None),
                cell_count = cell_count,
+               cell_by_spot = cell_id_list,
                )
 
     return res
@@ -148,7 +152,7 @@ def format_genome(genome: m.Genome):
 
     genome_start = genome.pos
     len_last_gene = int(np.diff(genome_start).mean())
-    genome_end = np.append(genome.pos[1::],genome_pos[-1] + len_last_gene)
+    genome_end = np.append(genome.pos[1::],genome.pos[-1] + len_last_gene)
     chrom = np.array(["chr1" for x in range(genome_start.shape[0])])
     tmp = np.hstack((chrom[:,np.newaxis],
                      genome_start[:,np.newaxis],

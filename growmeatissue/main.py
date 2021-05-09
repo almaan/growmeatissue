@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import numpy as np
 import pandas as pd
 import os.path as osp
@@ -61,7 +62,7 @@ def run(n_initial_cells,
                                               )
     n_aberrant_cells = len(population)
 
-    logger.info("Completed : Tissue growth | Cells : {}".format(n_aberrant_cells))
+    logger.info("Completed : Tissue growth | Total Cells : {}".format(n_aberrant_cells))
 
     logger.info("Intialized : Clustering | Clusters : {}".format(n_clusters))
 
@@ -93,12 +94,12 @@ def run(n_initial_cells,
                             (max(cluster_idx)+1)* np.ones(len(population)- len(cluster_idx)),
                             )
 
-    logger.info("Completed : Add normal cells | Cells : {}".format(len(population)))
+    logger.info("Completed : Add normal cells | Total Cells : {}".format(len(population)))
     logger.info("Initialized : Tissue Assembly")
     tissue_data = f.assemble_tissue_data(population)
 
     tissue_data["cluster_index"] = cluster_idx
-
+    logger.info("Completed : Tissue Assembly")
     logger.info("Initialized : In silico Spatial Transcriptomics")
     st_data = f.in_silico_st(tissue_data,
                              domain_side_size,
@@ -139,11 +140,11 @@ def main():
     aa("-d","--design_file")
     aa("-o","--out_dir")
     aa("-vo","--visual_output",default = False,action ="store_true")
-    aa("-rs","--random_seed",defaut = None,required=False)
+    aa("-rs","--random_seed",default = None,required=False)
 
     args = prs.parse_args()
 
-    if args.random_seed is None:
+    if args.random_seed is not None:
         try:
             random_seed = int(args.random_seed)
             np.random.seed(random_seed)
@@ -250,8 +251,8 @@ def main():
         fig.savefig(osp.join(visual_out_dir,"tissue.png"))
 
     n_cells,n_genes = sc_data["expression"].shape
-    cell_names = pd.Index(["Cell_{}".format(x+1) for x in range(n_cells)])
-    gene_names = pd.Index(["Gene_{}".format(x+1) for x in range(n_genes)])
+    cell_names = pd.Index(["Cell_{}".format(x) for x in range(n_cells)])
+    gene_names = pd.Index(["Gene_{}".format(x) for x in range(n_genes)])
 
     sc_expr = pd.DataFrame(sc_data["expression"],
                            columns = gene_names,
@@ -331,6 +332,15 @@ def main():
 
         df.to_csv(osp.join(st_out_dir,name + ".tsv"),sep="\t")
 
+    with open(osp.join(st_out_dir,"cell_by_spot.tsv"),"w+") as f:
+        for k,s in enumerate( st_data["cell_by_spot"] ):
+            if not isinstance(s,list):
+                spot_list = [s]
+            else:
+                spot_list = s
+
+            spot_list = [str(x) for x in spot_list]
+            f.write(f"Spot_{k} : " + ",".join(spot_list) + "\n")
 
 
     #TODO: could drop eliminate cluster?
