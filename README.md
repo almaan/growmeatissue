@@ -150,7 +150,7 @@ which can be described as:
 
 This will generate a tissue akin to the one below, where each pixel represents
 and individual cell and the color indicates the total number of aberrations in
-the genome.
+the genome. In the example below we set _N_<sub>0</sub> to 2.
 
 ![ex_tissue](img/tissue_example.png)
 
@@ -177,11 +177,133 @@ nodes are colored in lightblue, and arrows go from parent to child.
 
 ![sc_cluster_lineage](img/lineage.png)
 
+As we can see this shows that we have two different lineage trees here, expected
+since we started with 2 cells with different aberrations. We also see how this
+checks out with the spatial arrangement of the clusters, for example: cluster
+1,2,7 and 9 are all located in the tumor in the bottom left corner and are also
+found in the same tree in our cluster lineage.
+
+## _in silico_ spatial transcriptomics
+
+Now once the tissue has been artificially grown, all that remains to be done is
+to perform the actual spatial transcriptomics experiment, and generate
+artificial spatial data.
+
+
+### Creating an array
+
+The first thing we will do is to construct a grid that represents the spots in
+our array, and place this grid over our tissue. The spots will have a certain
+`spot_radius` and all cells that are within `spot_radius` distance from a spot
+center will be considered as belonging to that given spot, obviously cells can
+only belong to one spot. Just like in the real spatial transcriptomics
+experiments, some cells do not belong to any spots (i.e., we will not capture
+transcripts from them). Below is an image of the spots overlaid on the tissue
+(left) and only the grids with each spot colored by the number of cells that are
+assigned to each spot (right).
+
+![spatialarray](img/spatialarray.png)
+
+Looking at the scalebars we see that the variance in cells is very low, the
+smallest value is 16 and the largest is 21.
+
+### Capturing transcripts
+
+The next step is to capture transcripts at each of our spots, to do this we
+stimulate the cells to express genes (like above), collect all the transcripts
+from all the cells residing at a spot and then from this collective mass
+subsample _N_<sub>s</sub> transcripts using the multinomial distribution, where
+we let the probabilities be proportional to the number of transcripts from
+respective gene. Meaning we end up with data similar to real spatial
+transcriptomics data. The image below illustrates what the expression of a
+certain gene looks like in this _in silico_ spatial transcriptomics experiment.
+
+![spatialexpr](img/st_expr.png)
 
 
 # Use
-Synthethic data generation
+The process described above is all packaged into a easy-to-use CLI application
+than can be run from the terminal. Since the model relies on several parameters,
+rather than providing these as input flags, we will use a design file (`toml`
+format). Where all these parameters are defined, and all we need to do is to
+provide a path to the design file we want to be used in the modelling. The data
+presented above, was generated from the following design file:
 
+```toml
+[genome]
+
+n_genes = 500 # number of genes to use
+genome_size = 1e5 # size of genome
+event_spread = 10 # influences size of events (amplification/deletion)
+concentration = 1 # influences how homogenous the expression tendencies are, recommend to use 1
+initial_event_size = 15 # size of initial event in the seeding cells
+
+
+[population]
+n_initial_cells = 2 # number of intitial cells (N_0)
+domain_side_size = 200 # size of spatial domain (square with these sides will be used)
+fraction_drop = 0.05 # fraction of tumor cells to "kill" after growth
+n_clusters = 10 # number of clusters to use
+max_cells = 5e3 # upper threshold for the number of cells in the tissue, growth terminates once above
+
+    [population.transitions]
+    s0s1 = 0.2 # probability of going from state 0 to state 1 (p_01)
+    s1s0 = 0.2 # probability of going from state 1 to state 0 (p_10)
+    [population.rates_state_0] # action rates pertaining to state 0
+    move_rate = 0.4  
+    stay_rate = 0.1
+    spawn_rate = 0.4
+    death_rate  = 0
+    mutation_rate = 0.0
+    [population.rates_state_1] # action rates pertaining to state 1
+    move_rate = 0.3
+    stay_rate = 0.45
+    spawn_rate = 0.2
+    death_rate  = 0
+    mutation_rate = 0.8
+
+    # initial coordinates for the seeding cells, specify one tuple for each cell, or none (then random sampling occurs)
+    [[population.initial_coordinates]]
+    x = 50
+    y = 50
+
+    [[population.initial_coordinates]]
+    x = 150
+    y = 150
+
+
+[spatial]
+depth = 5000 # depth of sampling from transcript pool at each spot
+n_spots_x = 20 # number of columns (spot)
+n_spots_y = 20 # number of rows (spots)
+spot_radius = 2.5 # radius of spot
+```
+
+This file, without the comments, can be found in the `config` folder.
+
+Once you've specified the design file, simply do `python3 ./main -d design.toml -o OUT_DIR`, where `OUT_DIR` is the directory you wish to output the data into. If you add the flag `-vo` you will also get some visual output to easily inspect what your tissue looks like.
+
+The output from `growmeatissue` will be the following files:
+```sh
+.
+├── cluster_lineage.tsv # cluster match matrix
+├── genome.tsv # genome information
+├── lineage.tsv # child,parent table for every cell
+├── single_cell_data
+│   ├── sc-expression.tsv # single cell expression matrix
+│   ├── sc-genome_profile.tsv # genome profile matrix
+│   └── sc-meta_data.tsv # meta data for individual cells
+├── spatial_data
+│   ├── cell_by_spot.txt # which cells that reside at each spot
+│   ├── cluster_data.tsv # proportion of cells at each spot that belong to respective cluster
+│   ├── st-annotation.tsv # annotation of each spot as benign or aberrant
+│   ├── st-expression.tsv # spatial gene expression data
+│   ├── st-genome_profile.tsv # spatial genomic profiles (average at each spot)
+│   └── st-meta.tsv # meta data for spatial data
+└── visual
+    ├── tissue.png # image of the tissue
+    └── tissue_w_array.png # image of the tissue with array overlaid
+```
 
 # Requirements
 
