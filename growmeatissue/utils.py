@@ -1,4 +1,4 @@
-from typing import *
+from typing import Tuple
 
 import matplotlib.pyplot as plt
 import model as m
@@ -27,7 +27,7 @@ def clean_ax(ax: plt.Axes) -> None:
 def visualize_tissue(
     sc_genome: np.ndarray,
     sc_crds: np.ndarray,
-):
+) -> Tuple[plt.Figure, plt.Axes]:
 
     abber = np.sum(sc_genome != 1, axis=1)
 
@@ -49,11 +49,11 @@ def visualize_tissue(
 
 
 def visualize_array(
-    sc_genome,
-    sc_crd,
+    sc_genome: np.ndarray,
+    sc_crd: np.ndarray,
     array_x: np.ndarray,
     array_y: np.ndarray,
-):
+) -> Tuple[plt.Figure, plt.Axes]:
 
     fig, ax = visualize_tissue(
         sc_genome,

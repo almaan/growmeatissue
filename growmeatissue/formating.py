@@ -30,9 +30,9 @@ def add_cluster(
 
 def get_cluster_lineage(
     population: List[m.Cell],
-    cluster_idx,
+    cluster_idx: np.ndarray,
     lineage: Dict[int, int],
-):
+) -> np.ndarray:
 
     n_cluster = np.unique(cluster_idx).shape[0]
     pos_to_id = {x: population[x].id for x in range(len(population))}
@@ -75,12 +75,12 @@ def assemble_tissue_data(
 
 def in_silico_st(
     tissue_data: Dict[str, np.ndarray],
-    domain_side_size,
+    domain_side_size: float,
     depth: int = 5000,
     spot_radius: float = 2.5,
     n_spots_x: int = 10,
     n_spots_y: int = 10,
-):
+) -> Dict[str, np.ndarray]:
 
     radius_squared = spot_radius ** 2
 
@@ -150,7 +150,9 @@ def in_silico_st(
     return res
 
 
-def format_genome(genome: m.Genome):
+def format_genome(
+    genome: m.Genome,
+) -> pd.DataFrame:
 
     genome_start = genome.pos
     len_last_gene = int(np.diff(genome_start).mean())

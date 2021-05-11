@@ -14,10 +14,10 @@ from scipy.stats import truncnorm
 class Genome:
     def __init__(
         self,
-        theta,
+        theta: np.ndarray,
         genome_length: int,
-        expr_ub=1000,
-        expr_lb=100,
+        expr_ub: int = 1000,
+        expr_lb: int = 100,
         sigma: int = 2,
     ) -> None:
         self.theta = theta
@@ -134,16 +134,16 @@ class Genome:
 class Cell:
     def __init__(
         self,
-        genome,
+        genome: Genome,
         mutation_rate: Optional[np.ndarray],
         action_rates: Optional[np.ndarray],
-        counter,
-        x=0,
-        y=0,
-        active_state=5,
-        p_move=None,
-        tmat=None,
-        parent=-1,
+        counter: ut.Counter,
+        x: int = 0,
+        y: int = 0,
+        active_state: int = 5,
+        p_move: Optional[np.ndarray] = None,
+        tmat: Optional[np.ndarray] = None,
+        parent: int = -1,
     ) -> None:
 
         self.counter = counter
@@ -189,7 +189,7 @@ class Cell:
 
     def search_nbrhd(
         self,
-        cell_map,
+        cell_map: np.ndarray,
     ) -> Tuple[np.ndarray, np.ndarray]:
 
         free_space = []

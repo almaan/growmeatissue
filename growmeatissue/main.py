@@ -15,11 +15,11 @@ import utils as ut
 
 
 def run(
-    n_initial_cells,
-    n_genes,
-    action_rates,
-    mutation_rate,
-    transitions,
+    n_initial_cells: int,
+    n_genes: int,
+    action_rates: np.ndarray,
+    mutation_rate: np.ndarray,
+    transitions: np.ndarray,
     n_clusters: int = 10,
     genome_size: int = 1e5,
     sigma: float = 10,
@@ -130,7 +130,7 @@ def run(
     return res
 
 
-def main():
+def main() -> None:
 
     prs = arp.ArgumentParser()
 
