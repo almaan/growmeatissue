@@ -165,7 +165,7 @@ features (genomic and expression profile) for the subset of aberrant cells.
 ### Clustering 
 
 As we often are more interested in groups of cells than perhaps the individual
-cell itself, this implementation also implements an agglomerative clustering
+cell itself, this implementation also applies an agglomerative clustering
 step - based on the genomic profile of each cell - which shows how these
 clusters share a clear spatial zonation pattern:
 

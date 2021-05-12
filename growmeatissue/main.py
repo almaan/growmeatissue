@@ -324,7 +324,7 @@ def main() -> None:
             columns=cluster_names,
             index=spot_names,
         )
-        cluster_data.to_csv(osp.join(args.out_dir, "cluster_data.tsv"), sep="\t")
+        cluster_data.to_csv(osp.join(st_out_dir, "cluster_data.tsv"), sep="\t")
 
     st_annotation = pd.DataFrame(
         st_data["spot_status"],
@@ -343,7 +343,7 @@ def main() -> None:
 
         df.to_csv(osp.join(st_out_dir, name + ".tsv"), sep="\t")
 
-    with open(osp.join(st_out_dir, "cell_by_spot.tsv"), "w+") as f:
+    with open(osp.join(st_out_dir, "cell_by_spot.txt"), "w+") as f:
         for k, s in enumerate(st_data["cell_by_spot"]):
             if not isinstance(s, list):
                 spot_list = [s]
