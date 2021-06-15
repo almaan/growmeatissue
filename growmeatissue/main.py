@@ -336,12 +336,17 @@ def main() -> None:
         {1: "benign", 0: "aberrant"}
     )
 
+    no_header = ["st-annotation", "st-genome"]
     for df, name in zip(
         [st_expr.T, st_genome_profile.T, st_meta_data, st_annotation],
         ["st-expression", "st-genome_profile", "st-meta", "st-annotation"],
     ):
 
-        df.to_csv(osp.join(st_out_dir, name + ".tsv"), sep="\t")
+        df.to_csv(
+            osp.join(st_out_dir, name + ".tsv"),
+            sep="\t",
+            header=(True if name not in no_header else False),
+        )
 
     with open(osp.join(st_out_dir, "cell_by_spot.txt"), "w+") as f:
         for k, s in enumerate(st_data["cell_by_spot"]):
@@ -370,6 +375,9 @@ def main() -> None:
     )
 
     genome_data = res["genome_data"]
+    genome_data[["start", "end"]] = (
+        genome_data[["start", "end"]].astype(np.float).astype(np.int)
+    )
     genome_data.index = gene_names
 
     for df, name in zip(

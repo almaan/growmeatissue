@@ -61,7 +61,9 @@ def assemble_tissue_data(
     expression = np.array([x.sample_expression() for x in population])
     crd = np.array([x.crd for x in population])
     genome = np.vstack([x.genome.get_gene_count()[np.newaxis, :] for x in population])
-    benign = np.array([int(np.all(x.genome.get_gene_count() == 1)) for x in population])
+    benign = np.array(
+        [int(np.all(x.genome.get_gene_count() == 1)) for x in population]
+    )  # TODO: change to 50%
 
     res = dict(
         expression=expression,
@@ -132,7 +134,9 @@ def in_silico_st(
         ben_matrix[spot] = state_ben
 
         if make_cluster_matrix:
-            clu, cnt = np.unique(tissue_data["cluster_index"], return_counts=True)
+            clu, cnt = np.unique(
+                tissue_data["cluster_index"][in_spot, :], return_counts=True
+            )
             cluster_matrix[spot, clu.astype(int)] = cnt / cnt.sum()
 
     crd = np.hstack((xx[:, np.newaxis], yy[:, np.newaxis]))
